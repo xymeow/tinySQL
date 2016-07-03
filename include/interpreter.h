@@ -42,6 +42,7 @@ bool checkValueMatchType(int type, string value);
 
 //utils
 void trim(string &src);
+void split(std::string& s, std::string& delim,std::vector< std::string >* ret);
 int getType(string type);
 int toInt(string value);
 bool isInt(string value);

@@ -2,15 +2,17 @@
 #define __CATALOT_H__
 
 #define DATA_DIR "./data/"
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
 #include "table.h"
 #include "database.h"
+#include "buffer.h"
 using namespace std;
 
 bool isTableExist(string dbname, string tname);
 
 Table getTable(string dbname, string tname);
+Buffer getData(string dbname, string tname);
 
 bool createTable(string dbname, Table table);
 

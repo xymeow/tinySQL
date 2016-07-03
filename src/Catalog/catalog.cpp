@@ -4,6 +4,8 @@
 #include <sstream>
 #include <sys/stat.h>
 #include "catalog.h"
+#include "buffer.h"
+#include "interpreter.h"
 using namespace std;
 
 int xxmain(){
@@ -50,7 +52,29 @@ Table getTable(string dbname, string tname){
 
 	table.attrs = attrs;
 	table.tname = tname;
+	table_file.close();
 	return table;
+}
+
+Buffer getData(string dbname, string tname) {
+	Buffer buffer;
+	Table table = getTable(dbname, tname);
+	string table_data_path = getTableDataPath(dbname, tname);
+	stringstream sstream;
+	ifstream data_file;
+	data_file.open(table_data_path.c_str());
+	vector<string> data;
+	vector<Attr> attrs;
+	buffer.attrs = table.attrs;
+	buffer.alength = table.attr_num;
+	// for (int i = 0; i < )
+	string line;
+	while(getline(data_file, line)) {
+		trim(line);
+		data.push_back(line);
+	}
+	buffer.data = data;
+	return buffer;
 }
 
 /***
@@ -82,6 +106,7 @@ bool createTable(string dbname, Table table) {
 	//建立数据文件
 	string table_data_path = getTableDataPath(dbname,table.tname);
 	ofstream table_data(table_data_path.c_str());
+
 	return true;
 }
 

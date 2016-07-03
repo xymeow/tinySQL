@@ -218,6 +218,7 @@ void createTableClause(string query){
 				cout<<"Table create failed!"<<endl;
 			}
 
+
 		}else{
 			string remaining = query.substr(right_bracket_pos+1);
 			trim(remaining);
@@ -814,6 +815,22 @@ void trim(string &src){
 	src = src.substr(s_pos,e_pos-s_pos+1);
 	return;
 }
+
+void split(string& s, string& delim, vector< std::string >* ret)  
+{  
+    size_t last = 0;  
+    size_t index=s.find_first_of(delim,last);  
+    while (index!=std::string::npos)  
+    {  
+        ret->push_back(s.substr(last,index-last));  
+        last=index+1;  
+        index=s.find_first_of(delim,last);  
+    }  
+    if (index-last>0)  
+    {  
+        ret->push_back(s.substr(last,index-last));  
+    }  
+}  
 
 /***
   * get type 

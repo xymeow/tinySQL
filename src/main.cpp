@@ -16,11 +16,9 @@ int main(){
 
 	string query;
 	string line;//一行输入
-	
 	//init db
 	initDb();
 	
-
 	cout<<"tinySQL>";//命令行提示
 	getline(cin,line);
 	query = "";
