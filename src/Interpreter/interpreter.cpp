@@ -3,6 +3,7 @@
 #include <set>
 #include <stdlib.h>
 #include <string>
+#include <dirent.h> 
 #include "table.h"
 #include "interpreter.h"
 #include "catalog.h"
@@ -462,6 +463,16 @@ void deleteClause(string query){
 		return ;
 	}
 	//get word "from"
+	bool delAll = false;
+	// int tpos = query.find(" * ");
+	if (query.substr(0,s_pos) == "*") {
+		delAll = true;
+		query = query.substr(s_pos+1);
+		trim(query);
+		s_pos = query.find_first_of(' ');
+		// cout<<query<<endl;
+	}
+
 	string from = query.substr(0,s_pos);
 	if(from!="from"){
 		cout<<"You have an error in your SQL syntax."<<endl;
@@ -472,36 +483,59 @@ void deleteClause(string query){
 	trim(query);
 	//get table name
 	s_pos = query.find_first_of(' ');
-	if(s_pos==-1){
-		cout<<"you have an error in your sql syntax."<<endl;
-		cout<<"usage: delete from tablename [where] [condition]."<<endl;
-		return ;
-	}
-	string tname = query.substr(0,s_pos);
-    query = query.substr(s_pos+1);
-	trim(query);
+	string tname;
 	vector<Condition> conditions;
-	if(query!=""){
-		//get word where
-		s_pos = query.find_first_of(' ');
-		string where = query.substr(0,s_pos);
-		if(where!="where"){
-			cout<<"you have an error in your sql syntax near"<<where<<endl;
-			cout<<"Expect where"<<endl;
-			return ;
-		}
-		query = query.substr(s_pos+1);//get content after where
+
+	if(s_pos==-1){
+		// cout<<"you have an error in your sql syntax."<<endl;
+		// cout<<"usage: delete from tablename [where] [condition]."<<endl;
+		// return ;
+		delAll = true;
+		tname = query;
+	}
+	else{
+		tname = query.substr(0,s_pos);
+	    query = query.substr(s_pos+1);
 		trim(query);
-		try{
-			conditions = getConditions(query);
-		}catch(int msg){
-			if(msg==-1){
-				cout<<"you have an error in your sql syntax in where condition"<<endl;
+				if(query!=""){
+			//get word where
+			s_pos = query.find_first_of(' ');
+			string where = query.substr(0,s_pos);
+			if(where!="where"){
+				cout<<"you have an error in your sql syntax near"<<where<<endl;
+				cout<<"Expect where"<<endl;
 				return ;
 			}
-		}
+			query = query.substr(s_pos+1);//get content after where
+			trim(query);
+			try{
+				conditions = getConditions(query);
+			}catch(int msg){
+				if(msg==-1){
+					cout<<"you have an error in your sql syntax in where condition"<<endl;
+					return ;
+				}
+			}
 
+		}
 	}
+	
+	Table table = getTable(CURRENT_DB, tname);
+	if (delAll) {
+		int msg = deleteAllRecords(table);
+		if (msg == -1) {
+			cout<<"delete failed!"<<endl;
+			return;
+		}
+		cout<<"delete success!"<<endl;
+		return;
+	}
+	int msg = deleteRecords(table, conditions);
+	if (msg == -1) {
+			cout<<"delete failed!"<<endl;
+			return;
+		}
+	cout<<"delete success!"<<endl;
 	return ;
 }
 
@@ -509,7 +543,7 @@ void deleteClause(string query){
   * get condtions from string "xxx op value1 and yyy op value2..." 
   ***/
 vector<Condition> getConditions(string cond_str){
-	cout<<cond_str<<endl;
+	// cout<<cond_str<<endl;
 	vector<Condition> conditions;
 	int and_pos = cond_str.find(" and ");
 	while(and_pos!=cond_str.npos){
@@ -728,7 +762,7 @@ void dropClause(string query){
 	}else if(d_what=="table"){
 		dropTableClause(remaining);
 	}else if(d_what=="index"){
-		dropIndexClause(remaining);
+		// dropIndexClause(remaining);
 	}else{
 		// undefined 
 		cout<<"You have an error in your SQL syntax near "<<d_what<<endl;
@@ -742,6 +776,10 @@ void dropDatabaseClause(string dbname){
 		cout<<"You have an error in your SQL syntax. Too many argument for drop database:"<<dbname<<"."<<endl; 
 		return;
 	}
+	if(CURRENT_DB == dbname)
+		CURRENT_DB = "default";
+	// rmdir(DATA_DIR+dbname);
+	cout<<"delete database "<<dbname<<endl;
 	//drop database;
 }
 
@@ -752,14 +790,7 @@ void dropTableClause(string tname){
 	}
 	//drop table;
 }
-void dropIndexClause(string iname){
-	if(iname.find(" ")!=iname.npos){
-		cout<<"You have an error in your SQL syntax. Too many argument for drop index:"<<iname<<"."<<endl; 
-		return;
-	}
-	//drop table;
 
-}
 /*=================End of Drop clause==================*/
 
 void execFileClause(string query){

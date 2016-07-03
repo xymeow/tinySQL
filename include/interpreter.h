@@ -7,7 +7,7 @@
 using namespace std;
 
 extern string CURRENT_DB;
-
+#define DATA_DIR "./data/"
 
 
 void doOneQuery(string query);
@@ -28,7 +28,7 @@ void useClause(string query);
 void dropClause(string query);
 void dropDatabaseClause(string dbname);
 void dropTableClause(string tname);
-void dropIndexClause(string iname);
+// void dropIndexClause(string iname);
 
 void execFileClause(string query);
 

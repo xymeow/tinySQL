@@ -109,8 +109,99 @@ int selectRecords(Table table, vector<string> attrs, vector<Condition> condition
 	return 0;
 }
 
-// int deleteAllRecords(Table table){
-// }
+int deleteAllRecords(Table table){ //删除表中全部数据，只要不以追加模式打开文件就好了
+	ofstream table_data;
+	string table_data_path = getTableDataPath(CURRENT_DB, table.tname);
+	table_data.open(table_data_path.c_str());
+	table_data.close();
+}
 
 int deleteRecords(Table table, vector<Condition> conditions){
+	Buffer buffer = getData(CURRENT_DB, table.tname);
+	vector<string> data;
+	vector<string> tmp;
+	stringstream ss;
+	bool delMark[buffer.data.size()];
+	for (int i = 0; i < buffer.data.size(); i ++)
+		delMark[i] = true;
+	for (int i = 0; i < conditions.size(); i++) {
+		int iattr;
+		string stmp = conditions[i].value;
+		data.clear();
+		for (int j = 0; j < table.attr_num; j ++)
+			if (table.attrs[j].attr_name == conditions[i].attr_name)
+				iattr = j;
+		for(int j = 0; j < buffer.data.size(); j ++) {
+			tmp.clear();
+			string bl = " ";
+			split(buffer.data[j], bl, &tmp);
+			int itmp = atoi(tmp[iattr].c_str());
+			int itmp2 = atoi(conditions[i].value.c_str());
+			if (delMark[j]){
+				switch(conditions[i].op) {
+					case 0: // =
+						if (tmp[iattr] == conditions[i].value) 
+							delMark[j] = true;
+						else
+							delMark[j] = false;
+						break;
+					case 1: // <>
+						if (tmp[iattr] != conditions[i].value)
+							delMark[j] = true;
+						else
+							delMark[j] = false;
+						break;
+					case 2: // <
+						if (itmp < itmp2)
+							delMark[j] = true;
+						else
+							delMark[j] = false;
+						break;
+					case 3: //>
+						if (itmp > itmp2)
+							delMark[j] = true;
+						else
+							delMark[j] = false;
+						break;
+					case 4://<=
+						if (itmp <= itmp2)
+							delMark[j] = true;
+						else
+							delMark[j] = false;
+						break;
+					case 5: // >=
+						if (itmp >= itmp2)
+							delMark[j] = true;
+						else
+							delMark[j] = false;
+						break;
+					default: //undefined
+						cout<<"undefined operation!"<<endl;
+						return -1;
+				}
+			}
+			
+
+			// int j;
+		}
+		// buffer.data = data;
+	}
+	for (int i = 0; i < buffer.data.size(); i ++) {
+		if (!delMark[i])
+			data.push_back(buffer.data[i]);
+	}
+	buffer.data = data;
+
+	ofstream table_data;
+	string table_data_path = getTableDataPath(CURRENT_DB, table.tname);
+	// cout<<CURRENT_DB<<endl;
+	table_data.open(table_data_path.c_str());// 打开文件
+
+	for (int i = 0; i < buffer.data.size(); i ++){
+		// cout<<buffer.data[i]<<endl;
+		table_data<<buffer.data[i]<<endl;
+	}
+	table_data.flush();
+	table_data.close();
+	return 0;
 }
