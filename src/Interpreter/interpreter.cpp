@@ -662,6 +662,7 @@ void selectClause(string query){
 	query = query.substr(from_pos+6);//6 is length of ' from '
 	trim(query);
 	string tname;
+	vector<Condition> conditions;
 	int s_pos = query.find_first_of(' ');
 	if(s_pos==-1){
 		if(query==""){	
@@ -677,7 +678,7 @@ void selectClause(string query){
 		query = query.substr(s_pos+1);
 		trim(query);
 
-		vector<Condition> conditions;
+		
 		if(query!=""){
 			//get word where
 			s_pos = query.find_first_of(' ');
@@ -699,8 +700,19 @@ void selectClause(string query){
 			}
 
 		}
+	}
+	Table table = getTable(CURRENT_DB, tname);
+	vector<Record> records;
+	if (all_attr) {
+		for (int i = 0; i < table.attrs.size(); i++){
+			attrs.push_back(table.attrs[i].attr_name);
+		}
+	}
+	int msg = selectRecords(table, attrs, conditions, &records);
 
-
+	if (msg == -1) {
+		cout<<"select failed!"<<endl;
+		return;
 	}
 	return ;
 }

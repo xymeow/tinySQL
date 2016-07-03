@@ -1,5 +1,5 @@
 #ifndef __CATALOG_H__
-#define __CATALOT_H__
+#define __CATALOG_H__
 
 #define DATA_DIR "./data/"
 #include <iostream>

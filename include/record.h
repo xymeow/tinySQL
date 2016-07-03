@@ -21,7 +21,7 @@ int insertRecord(Table table, Record record);
 
 vector<Record> selectAllRecords(Table table, vector<Attr> attrs);
 
-vector<Record> selectRecords(Table table, vector<Attr> attrs, vector<Condition> conditions);
+int selectRecords(Table table, vector<string> attrs, vector<Condition> conditions, vector<Record>* records);
 
 int deleteAllRecords(Table table);
 
