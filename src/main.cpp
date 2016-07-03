@@ -21,7 +21,7 @@ int main(){
 	initDb();
 	
 
-	cout<<"tiniSql>";//命令行提示
+	cout<<"tinySQL>";//命令行提示
 	getline(cin,line);
 	query = "";
 
@@ -41,7 +41,7 @@ int main(){
 			trim(query);
 			doOneQuery(query); //执行query
 			if(line==""){//若line=""则语句已被解析完
-				cout<<"MiniSql>";
+				cout<<"tinySQL>";
 				getline(cin,line);
 			}
 			query="";//循环
